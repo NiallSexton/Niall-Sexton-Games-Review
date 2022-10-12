@@ -19,3 +19,11 @@ exports.fetchReviews = (review_id) => {
         return (body.rows[0]);
     });
 };
+
+exports.fetchUsers = () => {
+    console.log('in the model, <---');
+    return db.query(`SELECT * FROM users;`).then(({rows}) => {
+        return (rows);
+    })
+}
+

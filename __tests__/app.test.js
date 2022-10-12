@@ -91,4 +91,30 @@ describe('app', () => {
         });
     });
 });
-
+describe.only('GET /api/users', () => {
+    test('should return status 200, repsponds wit an array of objects', () => {
+        return request(app)
+        .get('/api/users')
+        .expect(200)
+        .then(({body:{users}}) => {
+            expect(users.length).not.toBe(0);
+            users.forEach((user) => {
+                expect(user).toEqual(
+                    expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String),
+                    })
+                )
+            })
+        })
+    });
+    test('should return status 404 and a message when a wrong pathway is given', () => {
+        return request(app)
+        .get('/wrongpath')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Wrong pathway');
+        })
+    }); 
+});

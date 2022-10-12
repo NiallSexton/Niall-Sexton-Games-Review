@@ -1,4 +1,6 @@
-const { fetchCategories, fetchReviews } = require('../db/models/model');
+
+const { fetchCategories, fetchUsers, fetchReviews } = require('../db/models/model');
+
 
 exports.getCategories = (req, res, next) => {
     fetchCategories().then((categories) => {
@@ -14,5 +16,12 @@ exports.getReviews = (req, res, next) => {
     .catch((err) => {
         console.log(err);
         next(err);
+    });
+}
+
+exports.getUsers = (req, res, next) => {
+    console.log('in the controller, <---');
+    fetchUsers().then((users) => {
+        return res.status(200).send({users: users})
     });
 }
