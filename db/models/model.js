@@ -7,3 +7,10 @@ exports.fetchCategories = () => {
         return rows;
     })
 }
+
+exports.fetchUsers = () => {
+    console.log('in the model, <---');
+    return db.query(`SELECT * FROM users;`).then(({rows}) => {
+        return (rows);
+    })
+}
