@@ -17,7 +17,11 @@ exports.fetchReviews = (review_id) => {
             message: 'Invalid id type',
         })
     }
-    return db.query(`SELECT * FROM reviews WHERE review_id = $1;`, [review_id]).then((body) => {
+
+    return db.query('SELECT reviews.*, COUNT(comment_id):: INT AS comment_count FROM reviews LEFT JOIN comments ON comments.review_id = $1 WHERE reviews.review_id = $1 GROUP BY reviews.review_id;',
+    [review_id]).then((body) => {
+        console.log(body.rows, 'body.rows');
+
         const user = body.rows[0];
         if (!user) {
             return Promise.reject({
