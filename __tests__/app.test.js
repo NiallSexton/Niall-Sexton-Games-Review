@@ -38,7 +38,7 @@ describe('app', () => {
 describe('Error 404: bad pathway', () => {
     test('should return status 404 and a message when a wrong pathway is given', () => {
         return request(app)
-        .get('/wrongpath')
+        .get('/api/wrongpath')
         .expect(404)
         .then(({body}) => {
             expect(body.message).toBe('Wrong pathway');
@@ -55,7 +55,6 @@ describe('app', () => {
                     .get('/api/reviews/2')
                     .expect(200)
                     .then(({body:{review}}) => {
-                        // console.log(review, '<----')
                         expect(review).toEqual(
                             expect.objectContaining({
                                 review_id: expect.any(Number),
@@ -92,8 +91,9 @@ describe('app', () => {
         });
     });
 });
+
 describe('GET /api/users', () => {
-    test('should return status 200, repsponds wit an array of objects', () => {
+    test('should return status 200, repsponds with an array of objects', () => {
         return request(app)
         .get('/api/users')
         .expect(200)
@@ -118,4 +118,56 @@ describe('GET /api/users', () => {
             expect(body.message).toBe('Wrong pathway');
         })
     }); 
+});
+
+describe('patchReviewsById', () => {
+    test('should respond with a status code 200 and returns an updated review object with the votes changed based on the the inputted votes', () => {
+        return request(app)
+        .patch('/api/reviews/1')
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then(({body}) => {
+            expect(body.rows).toEqual({
+                review_id: 1,
+                title: 'Agricola',
+                designer: 'Uwe Rosenberg',
+                owner: 'mallionaire',
+                review_img_url:
+                  'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+                review_body: 'Farmyard fun!',
+                category: 'euro game',
+                created_at: "2021-01-18T10:00:20.514Z",
+                votes: 2 
+            })
+        })
+    });
+    describe('Error testing', () => {
+        test('Error 400: Invalid data type', () => {
+            return request(app)
+            .patch('/api/reviews/wrongDataType')
+            .send({ inc_votes: 1 })
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Invalid id type'});
+            })
+        });
+        test('Error 400: Invalid data type', () => {
+            return request(app)
+            .patch('/api/reviews/1')
+            .send({ inc_votes: 'a' })
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Invalid inc_votes type'});
+            })
+        });
+        test('Error 404: Cant find review id', () => {
+            return request(app)
+            .patch('/api/reviews/7272')
+            .send({ inc_votes: 1 })
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Cant find review id'});
+            })
+        });
+    });
 });
