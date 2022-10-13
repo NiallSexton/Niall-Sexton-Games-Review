@@ -52,7 +52,7 @@ describe('app', () => {
             describe('/api/reviews/:reviews_id', () => {
                 test('should return a status 200 and an object with the review properties', () => {
                     return request(app)
-                    .get('/api/reviews/1')
+                    .get('/api/reviews/2')
                     .expect(200)
                     .then(({body:{review}}) => {
                         // console.log(review, '<----')
@@ -67,6 +67,7 @@ describe('app', () => {
                                 category: expect.any(String),
                                 created_at: expect.any(String),
                                 votes: expect.any(Number),
+                                comment_count: expect.any(String),
                             })
                         )
                     })
@@ -91,7 +92,7 @@ describe('app', () => {
         });
     });
 });
-describe.only('GET /api/users', () => {
+describe('GET /api/users', () => {
     test('should return status 200, repsponds wit an array of objects', () => {
         return request(app)
         .get('/api/users')
