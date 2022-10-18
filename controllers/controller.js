@@ -1,5 +1,5 @@
 
-const { fetchCategories, fetchUsers, fetchReviews, patchReviews } = require('../db/models/model');
+const { fetchCategories, fetchUsers, fetchReviewsById, patchReviews, fetchReviews } = require('../db/models/model');
 
 
 exports.getCategories = (req, res, next) => {
@@ -8,9 +8,9 @@ exports.getCategories = (req, res, next) => {
     })
 }
 
-exports.getReviews = (req, res, next) => {
+exports.getReviewsById = (req, res, next) => {
     const { review_id } = req.params;
-    fetchReviews(review_id).then((review) => {
+    fetchReviewsById(review_id).then((review) => {
         res.status(200).send({review});
     })
     .catch((err) => {
@@ -32,4 +32,12 @@ exports.patchReviewsById = (req, res, next) => {
         return res.status(200).send({rows});
     })
     .catch(next);
+}
+
+exports.getReviews = (req, res, next) => {
+    console.log('in the controller');
+    const { sort_by, order, category } = req.query;
+    fetchReviews(sort_by, order, category).then((rows) => {
+        return res.status(200).send();
+    })
 }

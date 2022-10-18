@@ -3,6 +3,7 @@ const request = require('supertest');
 const db = require('../db/connection');
 const app = require('../app.js');
 const testData = require('../db/data/test-data');
+const reviews = require('../db/data/test-data/reviews');
 
 beforeEach(() => seed(testData));
 
@@ -167,6 +168,50 @@ describe('patchReviewsById', () => {
             .expect(404)
             .then(({body}) => {
                 expect(body).toEqual({message: 'Cant find review id'});
+            })
+        });
+    });
+});
+
+describe('GET /api/reviews', () => {
+    test('should return a status 200 code and a review object with its properties', () => {
+        return request(app)
+            .get('/api/reviews')
+            .expect(200)
+            .then(({body: {reviews}}) => {
+                expect(reviews.length).not.toBe(0);
+                reviews.forEach((review) => {
+                    expect(review).toEqual(
+                    expect.objectContaining({
+                        review_id: expect.any(Number),
+                        title: expect.any(String),
+                        designer: expect.any(String),
+                        owner: expect.any(String),
+                        review_img_url: expect.any(String),
+                        category: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: 3,
+                    })
+                    )
+                })
+            })
+    });
+    // test('Uses the category query to filter results', () => {
+    //     return request(app)
+    //     .get('/api/reviews?category=euro_game')
+    //     .expect(200)
+    //     .then((res) => {
+    //         res.
+    //     })
+    // });
+    describe('Error testing', () => {
+        test('Error 400: Invalid sort query', () => {
+            return request(app)
+            .get('/api/reviews/reviews?sort_by=random_word')
+            .expect(400)
+            .then((body) => {
+                expect(body).toBe({message: 'Invalid sort query'});
             })
         });
     });
