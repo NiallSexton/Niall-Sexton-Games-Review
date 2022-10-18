@@ -10,7 +10,7 @@ exports.fetchCategories = () => {
     })
 }
 
-exports.fetchReviews = (review_id) => {
+exports.fetchReviewsById = (review_id) => {
     if(isNaN(review_id)) {
         return Promise.reject({
             status: 400,
@@ -59,4 +59,56 @@ exports.patchReviews = (review_id, votes) => {
         })
     });
 }
+
+exports.fetchReviews = (sort_by = 'created_at',
+order = 'desc',
+category) => {
+
+    let reviewArray = [
+        'review_id',
+        'title',
+        'designer',
+        'owner',
+        'review_img_url',
+        'category',
+        'created_at',
+        'votes',
+    ];
+
+    let categoryArray = [
+        'euro_game',
+        'dexterity',
+        'social_deduction',
+        "children's_games",
+    ];
+
+    let orderOptions = ['asc', 'desc'];
+
+    if(![reviewArray].includes(sort_by)) {
+        return Promise.reject({status: 400, message: 'Invalid sort query'});
+    }
+    
+    if(![orderOptions].includes(order)) {
+        return Promise.reject({status: 400, message: 'Invalid order query'});
+    }
+    const categoryQuery = `WHERE reviews.category = $1`
+
+    const queryStr = `
+    SELECT reviews.category, reviews.created_at, reviews.designer, reviews.owner, reviews.review_id, reviews.review_img_url, reviews.title, reviews.votes, COUNT(comments.comment_id):: INT AS comment_count 
+    FROM reviews 
+    LEFT JOIN comments ON comments.review_id ${categoryQuery} 
+    GROUP BY reviews.review_id 
+    ORDER BY ${sort_by} ${order};`
+
+    return db.query( queryStr, [category])
+    .then((rows) => {
+        console.log(rows, '<---');
+    })
+
+    }
+//     return db.query (`SELECT reviews.category, reviews.created_at, reviews.designer, reviews.owner, reviews.review_id, reviews.review_img_url, reviews.title, reviews.votes, COUNT(comments.comment_id):: INT AS comment_count FROM reviews LEFT JOIN comments ON comments.review_id = reviews.review_id GROUP BY reviews.review_id;`)
+//     .then(({rows}) => {
+//         console.log(rows, '<---');
+//     })
+// }
 
