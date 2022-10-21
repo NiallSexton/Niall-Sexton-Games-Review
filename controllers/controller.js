@@ -38,6 +38,9 @@ exports.getReviews = (req, res, next) => {
     console.log('in the controller');
     const { sort_by, order, category } = req.query;
     fetchReviews(sort_by, order, category).then((rows) => {
-        return res.status(200).send();
+        console.log(rows, "<---------")
+
+        return res.status(200).send(rows);
     })
+    .catch(next);
 }

@@ -17,7 +17,7 @@ app.all('*', (req, res) => {
 
 app.use((err,req,res,next) => {
     if (err.code === '22P02') {
-    res.status(400).send({message: 'Invalid id type'})}
+    res.status(400).send({message: 'Database error - invalid type'})}
     else if (err.status) {
       res.status(err.status).send({message: err.message})}
       else

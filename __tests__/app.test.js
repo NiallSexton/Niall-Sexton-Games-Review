@@ -173,14 +173,17 @@ describe('patchReviewsById', () => {
     });
 });
 
-describe('GET /api/reviews', () => {
+// Ticket 8
+describe.only('GET /api/reviews', () => {
     test('should return a status 200 code and a review object with its properties', () => {
         return request(app)
             .get('/api/reviews')
             .expect(200)
-            .then(({body: {reviews}}) => {
-                expect(reviews.length).not.toBe(0);
-                reviews.forEach((review) => {
+            .then((body) => {
+                console.log(body._body, "look here");
+                console.log(body._body.length);
+                expect(body._body.length).not.toBe(0);
+                body._body.forEach((review) => {
                     expect(review).toEqual(
                     expect.objectContaining({
                         review_id: expect.any(Number),
@@ -191,7 +194,7 @@ describe('GET /api/reviews', () => {
                         category: expect.any(String),
                         created_at: expect.any(String),
                         votes: expect.any(Number),
-                        comment_count: 3,
+                        comment_count: expect.any(Number),
                     })
                     )
                 })
@@ -208,11 +211,67 @@ describe('GET /api/reviews', () => {
     describe('Error testing', () => {
         test('Error 400: Invalid sort query', () => {
             return request(app)
-            .get('/api/reviews/reviews?sort_by=random_word')
+            .get('/api/reviews?sort_by=random_word')
             .expect(400)
-            .then((body) => {
-                expect(body).toBe({message: 'Invalid sort query'});
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Invalid sort query'});
             })
+        });
+    });
+    // do the same for order by and category
+    // change test title
+    describe.only('GET /api/reviews', () => {
+        test('should return a status 200 code and a review object with its properties', () => {
+            return request(app)
+                .get('/api/reviews?sort_by=title')
+                .expect(200)
+                .then((body) => {
+                    console.log(body._body, "look here");
+                    console.log(body._body.length);
+                    expect(body._body.length).not.toBe(0);
+                    body._body.forEach((review) => {
+                        expect(review).toEqual(
+                        expect.objectContaining({
+                            review_id: expect.any(Number),
+                            title: expect.any(String),
+                            designer: expect.any(String),
+                            owner: expect.any(String),
+                            review_img_url: expect.any(String),
+                            category: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            comment_count: expect.any(Number),
+                        })
+                        )
+                    })
+                })
+        });
+    });
+    describe.only('GET /api/reviews', () => {
+        test('should return a status 200 code and a review object with its properties', () => {
+            return request(app)
+                .get('/api/reviews?sort_by=title&category=dexterity&order=asc')
+                .expect(200)
+                .then((body) => {
+                    console.log(body._body, "look here");
+                    console.log(body._body.length);
+                    expect(body._body.length).not.toBe(0);
+                    body._body.forEach((review) => {
+                        expect(review).toEqual(
+                        expect.objectContaining({
+                            review_id: expect.any(Number),
+                            title: expect.any(String),
+                            designer: expect.any(String),
+                            owner: expect.any(String),
+                            review_img_url: expect.any(String),
+                            category: "dexterity",
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            comment_count: expect.any(Number),
+                        })
+                        )
+                    })
+                })
         });
     });
 });
