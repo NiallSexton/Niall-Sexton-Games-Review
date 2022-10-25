@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const { getCategories, getReviewsById, getUsers, patchReviewsById, getReviews } = require('./controllers/controller');
+const { getCategories, getReviewsById, getUsers, patchReviewsById, getReviews, getCommentsById, postCommentsById } = require('./controllers/controller');
 
 app.use(express.json());
 
@@ -10,6 +10,8 @@ app.get('/api/reviews/:review_id', getReviewsById);
 app.get('/api/users', getUsers);
 app.patch('/api/reviews/:review_id', patchReviewsById);
 app.get('/api/reviews', getReviews);
+app.get('/api/reviews/:review_id/comments', getCommentsById)
+app.post('/api/reviews/:review_id/comments', postCommentsById)
 
 app.all('*', (req, res) => {
     res.status(404).send({message:'Wrong pathway'});

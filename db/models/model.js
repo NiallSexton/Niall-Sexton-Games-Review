@@ -86,7 +86,7 @@ category = "all") => {
         'social_deduction',
         "children's_games",
     ];
-    console.log(sort_by, order, category);
+    // console.log(sort_by, order, category);
     let orderOptions = ['asc', 'desc'];
     // If sort by doesnt exsist in columnsOfInterest return an error
     if(!columnsOfInterest.includes(sort_by)) {
@@ -113,7 +113,7 @@ category = "all") => {
     GROUP BY reviews.review_id 
     ORDER BY ${sort_by} ${order};`
 
-    console.log(queryStr);
+    // console.log(queryStr);
 
     return db.query( queryStr)
     .then((body) => {
@@ -127,3 +127,19 @@ category = "all") => {
 //     })
 // }
 
+exports.fetchCommentsById = (id) => {
+    console.log(id);
+    return db.query(`SELECT * FROM comments WHERE review_id = $1`, [id]).then(({rows}) => {
+        // console.log(rows, "<----------------");
+        return rows;
+    })
+}
+
+exports.addCommentsById = (id, postComment) => {
+    const { author, body } = postComment;
+    console.log(author, body);
+    return db.query(`INSERT INTO comments(body, author, review_id) VALUES($1, $2,$3) RETURNING *;`, [body, author, id]).then(({rows}) => {
+        console.log(rows);
+        return rows;
+    })
+}

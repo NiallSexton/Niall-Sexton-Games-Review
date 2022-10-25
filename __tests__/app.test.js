@@ -174,14 +174,14 @@ describe('patchReviewsById', () => {
 });
 
 // Ticket 8
-describe.only('GET /api/reviews', () => {
+describe('GET /api/reviews', () => {
     test('should return a status 200 code and a review object with its properties', () => {
         return request(app)
             .get('/api/reviews')
             .expect(200)
             .then((body) => {
-                console.log(body._body, "look here");
-                console.log(body._body.length);
+                // console.log(body._body, "look here");
+                // console.log(body._body.length);
                 expect(body._body.length).not.toBe(0);
                 body._body.forEach((review) => {
                     expect(review).toEqual(
@@ -218,16 +218,36 @@ describe.only('GET /api/reviews', () => {
             })
         });
     });
+    describe('Error testing', () => {
+        test('Error 400: Invalid category value', () => {
+            return request(app)
+            .get('/api/reviews?category=notinthecategories;')
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Invalid category value'});
+            })
+        });
+    });
+    describe('Error testing', () => {
+        test('Error 400: Invalid sort query', () => {
+            return request(app)
+            .get('/api/reviews?order=forward')
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: 'Invalid order query'});
+            })
+        });
+    });
     // do the same for order by and category
     // change test title
-    describe.only('GET /api/reviews', () => {
-        test('should return a status 200 code and a review object with its properties', () => {
+    describe('GET /api/reviews', () => {
+        test('should return a status 200 code and a review object with its properties ordered by titles', () => {
             return request(app)
                 .get('/api/reviews?sort_by=title')
                 .expect(200)
                 .then((body) => {
-                    console.log(body._body, "look here");
-                    console.log(body._body.length);
+                    // console.log(body._body, "look here");
+                    // console.log(body._body.length);
                     expect(body._body.length).not.toBe(0);
                     body._body.forEach((review) => {
                         expect(review).toEqual(
@@ -247,14 +267,14 @@ describe.only('GET /api/reviews', () => {
                 })
         });
     });
-    describe.only('GET /api/reviews', () => {
+    describe('GET /api/reviews', () => {
         test('should return a status 200 code and a review object with its properties', () => {
             return request(app)
                 .get('/api/reviews?sort_by=title&category=dexterity&order=asc')
                 .expect(200)
                 .then((body) => {
-                    console.log(body._body, "look here");
-                    console.log(body._body.length);
+                    // console.log(body._body, "look here");
+                    // console.log(body._body.length);
                     expect(body._body.length).not.toBe(0);
                     body._body.forEach((review) => {
                         expect(review).toEqual(
@@ -274,4 +294,73 @@ describe.only('GET /api/reviews', () => {
                 })
         });
     });
+});
+
+describe("GET /api/reviews/:review_id/comments", () => {
+    test("200: responds with an array of comments for the given review id ", () => {
+      return request(app)
+        .get("/api/reviews/2/comments")
+        .expect(200)
+        .then(({body}) => {
+            // console.log(response);
+            // console.log(body);
+          expect(body.rows[0]).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+            })
+          );
+        });
+    });
+  });
+
+//   describe.only('GET /api/get/reviews/:reviews_id/comments', () => {
+//     test('should return an array of comments by their review ids', () => {
+//         return request(app)
+//         .get('/api/get/reviews/2/comments')
+//         .expect(200)
+//         .then((body) => {
+//             expect(body.comments.length).toBe(3);
+//                 expect(comment).toEqual(
+//                     expect.objectContaining({
+//                     body: expect.any(String),
+//                     votes: expect.any(Number),
+//                     author: expect.any(String),
+//                     created_at: expect.any(String),
+//                     comment_id: expect.any(Number),
+//                     })  
+//                 )
+//         })
+//     });
+// })
+
+// Ticket 10
+describe.only('POST /api/reviews/review_id/comments', () => {
+    test('shoud return a status 201 and the posted comment', () => {
+        const commentToBePosted = {
+            author: 'mallionaire',
+            body: 'This game is amazing'
+        };
+        return request(app)
+        .post('/api/reviews/2/comments')
+        .expect(201)
+        .send(commentToBePosted)
+        .then(({body}) => {
+            console.log(body);
+            expect(body.rows.length).not.toBe(0);
+            expect(body.rows[0]).toEqual(
+                expect.objectContaining({
+                    comment_id: expect.any(Number),
+                    body: 'This game is amazing',
+                    votes: expect.any(Number),
+                    author: 'mallionaire',
+                    review_id: expect.any(Number),
+                    created_at: expect.any(String),
+                })
+            )
+        })
+    })
 });
