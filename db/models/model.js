@@ -1,4 +1,5 @@
 const db = require('../connection');
+const categories = require('../data/test-data/categories');
 
 // function validateNumber() {
 
@@ -66,48 +67,58 @@ exports.patchReviews = (review_id, votes) => {
 
 exports.fetchReviews = (sort_by = 'created_at',
 order = 'desc',
-category) => {
+category = "all") => {
 
-    let reviewArray = [
+    let columnsOfInterest = [
         'review_id',
         'title',
         'designer',
         'owner',
-        'review_img_url',
         'category',
         'created_at',
         'votes',
     ];
-
-    let categoryArray = [
+    //This variable has all of the possible categories
+    let possibleCategories = [
+        'all',
         'euro_game',
         'dexterity',
         'social_deduction',
         "children's_games",
     ];
-
+    // console.log(sort_by, order, category);
     let orderOptions = ['asc', 'desc'];
-
-    if(![reviewArray].includes(sort_by)) {
+    // If sort by doesnt exsist in columnsOfInterest return an error
+    if(!columnsOfInterest.includes(sort_by)) {
         return Promise.reject({status: 400, message: 'Invalid sort query'});
     }
-    
-    if(![orderOptions].includes(order)) {
+    // If the category doesnt exsist in possible categories return an error
+    if(!possibleCategories.includes(category)) {
+        return Promise.reject({status: 400, message: 'Invalid category value'});
+    }
+    // If order is not one of the order options return an error
+    if(!orderOptions.includes(order)) {
         return Promise.reject({status: 400, message: 'Invalid order query'});
     }
-    const categoryQuery = `WHERE reviews.category = $1`
-
+    
+    let categoryQuery = "";
+    if(category !== "all") {
+        categoryQuery = `WHERE reviews.category = \'${category}\'`
+    }
+    
     const queryStr = `
     SELECT reviews.category, reviews.created_at, reviews.designer, reviews.owner, reviews.review_id, reviews.review_img_url, reviews.title, reviews.votes, COUNT(comments.comment_id):: INT AS comment_count 
     FROM reviews 
-    LEFT JOIN comments ON comments.review_id ${categoryQuery} 
+    LEFT JOIN comments ON reviews.review_id = comments.review_id ${categoryQuery} 
     GROUP BY reviews.review_id 
     ORDER BY ${sort_by} ${order};`
 
-    return db.query( queryStr, [category])
-    .then((rows) => {
-        console.log(rows, '<---');
-    })
+    // console.log(queryStr);
+
+    return db.query( queryStr)
+    .then((body) => {
+        return body.rows;
+    });
 
     }
 //     return db.query (`SELECT reviews.category, reviews.created_at, reviews.designer, reviews.owner, reviews.review_id, reviews.review_img_url, reviews.title, reviews.votes, COUNT(comments.comment_id):: INT AS comment_count FROM reviews LEFT JOIN comments ON comments.review_id = reviews.review_id GROUP BY reviews.review_id;`)
@@ -116,3 +127,19 @@ category) => {
 //     })
 // }
 
+exports.fetchCommentsById = (id) => {
+    console.log(id);
+    return db.query(`SELECT * FROM comments WHERE review_id = $1`, [id]).then(({rows}) => {
+        // console.log(rows, "<----------------");
+        return rows;
+    })
+}
+
+exports.addCommentsById = (id, postComment) => {
+    const { author, body } = postComment;
+    console.log(author, body);
+    return db.query(`INSERT INTO comments(body, author, review_id) VALUES($1, $2,$3) RETURNING *;`, [body, author, id]).then(({rows}) => {
+        console.log(rows);
+        return rows;
+    })
+}
