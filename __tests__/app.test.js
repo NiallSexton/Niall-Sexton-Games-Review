@@ -338,7 +338,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
 // })
 
 // Ticket 10
-describe.only('POST /api/reviews/review_id/comments', () => {
+describe('POST /api/reviews/review_id/comments', () => {
     test('shoud return a status 201 and the posted comment', () => {
         const commentToBePosted = {
             author: 'mallionaire',
